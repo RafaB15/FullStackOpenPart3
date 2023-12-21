@@ -68,12 +68,22 @@ app.post('/api/persons', (request, response) => {
         return response.status(400).json({
             error: 'content missing'
         })
+    } else if (!body.name) {
+        return response.status(400).json({
+            error: 'name missing'
+        })
     }
     
     const person = {
         id: generateId(),
         name: body.name,
         number: body.number,
+    }
+
+    if (phonebook.find(p => p.name === person.name)) {
+        return response.status(400).json({
+            error: 'name must be unique'
+        })
     }
 
     phonebook = phonebook.concat(person)
