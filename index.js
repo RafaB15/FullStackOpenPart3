@@ -1,7 +1,10 @@
+var morgan = require('morgan')
+
 const express = require('express')
 const app = express()
 
 app.use(express.json()) //Esto hace que la propiedad body de la request sea un objeto JS y no undefined.
+app.use(morgan('tiny'))
 
 let phonebook = [
     { 
