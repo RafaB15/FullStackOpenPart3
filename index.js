@@ -8,6 +8,7 @@ const app = express()
 app.use(cors()) 
 app.use(express.json()) //Esto hace que la propiedad body de la request sea un objeto JS y no undefined.
 app.use(morgan('tiny'))
+app.use(express.static('dist')) // Esto hace que el servidor sirva los archivos estáticos que están en la carpeta dist.
 
 let phonebook = [
     { 
