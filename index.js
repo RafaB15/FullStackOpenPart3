@@ -1,8 +1,11 @@
 var morgan = require('morgan')
+const cors = require('cors')
+
 
 const express = require('express')
 const app = express()
 
+app.use(cors()) 
 app.use(express.json()) //Esto hace que la propiedad body de la request sea un objeto JS y no undefined.
 app.use(morgan('tiny'))
 
