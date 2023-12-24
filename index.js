@@ -82,7 +82,7 @@ app.post('/api/persons', (request, response, next) => {
 
     person.save().then(savedPerson => {
         response.json(savedPerson)
-    })
+    }) 
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
