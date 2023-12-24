@@ -6,10 +6,22 @@ const Person = require('./models/person')
 const express = require('express')
 const app = express()
 
+app.use(express.static('dist')) // Esto hace que el servidor sirva los archivos estáticos que están en la carpeta dist.
 app.use(cors()) 
 app.use(express.json()) //Esto hace que la propiedad body de la request sea un objeto JS y no undefined.
 app.use(morgan('tiny'))
-app.use(express.static('dist')) // Esto hace que el servidor sirva los archivos estáticos que están en la carpeta dist.
+
+const errorHandler = (error, request, response, next) => {
+    console.log(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+    
+    next(error)
+}
+
+app.use(errorHandler)
 
 let phonebook = [
     { 
@@ -49,16 +61,23 @@ app.get('/info', (request, response) => {
     })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    Person.findById(request.params.id).then(person => {
-        response.json(person)
-    })
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+        .then(person => {
+            if (person) {
+                response.json(person)
+            } else {
+                response.status(404).end()
+            }
+        })
+        .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndDelete(request.params.id).then(result => {
         response.status(204).end()
     })
+    .catch(error => next(error))
 })
 
 const generateId = () => {
