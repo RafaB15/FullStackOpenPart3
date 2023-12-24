@@ -7,7 +7,7 @@ const express = require('express')
 const app = express()
 
 app.use(express.static('dist')) // Esto hace que el servidor sirva los archivos estáticos que están en la carpeta dist.
-app.use(cors()) 
+app.use(cors())
 app.use(express.json()) //Esto hace que la propiedad body de la request sea un objeto JS y no undefined.
 app.use(morgan('tiny'))
 
@@ -17,9 +17,8 @@ const errorHandler = (error, request, response, next) => {
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
-        return response.status(400).send({error: error.message})
+        return response.status(400).send( { error: error.message } )
     }
-    
     next(error)
 }
 
@@ -53,18 +52,14 @@ app.get('/api/persons/:id', (request, response, next) => {
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
-    Person.findByIdAndDelete(request.params.id).then(result => {
-        response.status(204).end()
-    })
-    .catch(error => next(error))
+    Person.findByIdAndDelete(request.params.id)
+        .then(() => {
+            response.status(204).end()
+        })
+        .catch(error => next(error))
 })
 
-const generateId = () => {
-    return Math.floor(Math.random() * 1000000)
-}
-
 app.post('/api/persons', (request, response, next) => {
-    
     const body = request.body
 
     if (!body) {
@@ -82,10 +77,11 @@ app.post('/api/persons', (request, response, next) => {
         number: body.number,
     })
 
-    person.save().then(savedPerson => {
-        response.json(savedPerson)
-    }) 
-    .catch(error => next(error))
+    person.save()
+        .then(savedPerson => {
+            response.json(savedPerson)
+        })
+        .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
