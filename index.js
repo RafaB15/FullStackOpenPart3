@@ -1,6 +1,7 @@
+require('dotenv').config()
 var morgan = require('morgan')
 const cors = require('cors')
-
+const Person = require('./models/person')
 
 const express = require('express')
 const app = express()
@@ -34,27 +35,25 @@ let phonebook = [
 ]
 
 app.get('/api/persons', (request, response) => {
-    response.json(phonebook)
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
 })
 
 app.get('/info', (request, response) => {
-    response.send(
-        '<p>Phonebook has info for ' + phonebook.length + ' people</p>' +
-        '<p>' + new Date() + '</p>'
-    )
+    Person.find({}).then(persons => {
+        response.send(
+            '<p>Phonebook has info for ' + persons.length + ' people</p>' +
+            '<p>' + new Date() + '</p>'
+        )
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = phonebook.find(person => person.id === id)
-
-    if (person) {
+    Person.findById(request.params.id).then(person => {
         response.json(person)
-    } else {
-        response.status(404).end()
-    }
+    })
 })
-
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
@@ -81,22 +80,14 @@ app.post('/api/persons', (request, response) => {
         })
     }
     
-    const person = {
-        id: generateId(),
+    const person = new Person({
         name: body.name,
         number: body.number,
-    }
+    })
 
-    if (phonebook.find(p => p.name === person.name)) {
-        return response.status(400).json({
-            error: 'name must be unique'
-        })
-    }
-
-    phonebook = phonebook.concat(person)
-
-    console.log(person)
-    response.json(person)
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
 })
 
 const PORT = process.env.PORT || 3001
